@@ -1,0 +1,90 @@
+package com.acisa.cultivos.importacion;
+
+import java.util.Date;
+
+import javax.persistence.Query;
+
+import com.acisa.cultivos.modelos.Fabricantes;
+import com.acisa.cultivos.modelos.Productos;
+import com.acisa.cultivos.modelos.Titulares;
+import com.acisa.cultivos.objetos.ObjFabricantes;
+import com.acisa.cultivos.objetos.ObjTitulares;
+import com.acisa.cultivos.objetos.Persistencia;
+import com.acisa.cultivos.objetos.ObjUsosAutorizados;
+
+public class ObjImportacionFolios extends Persistencia {
+
+    public ObjImportacionFolios() {
+
+    }
+
+    Productos producto = new Productos();
+
+    public void ProcesaProducto(Integer numeroRegistro, String documento) {
+
+        String[] datos;
+        String anter1 = "";
+        String anter2 = "";
+
+        em = entityManager();
+        try {
+
+            ProcesarFolio proceso = new ProcesarFolio(numeroRegistro, documento);
+            RegistroFitosanitario registro = proceso.getRegistro();
+
+            /*
+            * Comprueba si existe
+            * numero registro o lo crea nuevo
+            */
+            Query consulta = em.createQuery("SELECT p FROM Productos p where p.numeroRegistro = :numero ");
+            consulta.setParameter("numero", numeroRegistro);
+            consulta.setMaxResults(1);
+            producto = new Productos();
+            try {
+                producto = (Productos) consulta.getSingleResult();
+            } catch (Exception e) {
+                producto = new Productos();
+                producto.setNumeroRegistro(numeroRegistro);
+                em.getTransaction().begin();
+                em.persist(producto);
+                em.flush();
+                em.getTransaction().commit();
+            }
+
+            ObjUsosAutorizados usos = new ObjUsosAutorizados();
+            usos.EliminarUsos(producto.getCodigo());
+
+            em.getTransaction().begin();
+
+            producto.setNombre(registro.getNombreComercial());            
+            producto.setMateriaActiva(registro.getComposicion());
+            producto.setPresentacion(registro.getPresentacion());
+            producto.setAmbitos(registro.getTipoFuncion());
+            producto.setOrden(registro.getOrdenacion());
+            
+            producto.setFechaInscripcion(registro.getFechaInscripcion());
+            producto.setFechaCaducidad(registro.getFechaCaducidad());
+            
+            ObjTitulares titular = new ObjTitulares();
+            Titulares registroTitular = titular.buscarTitular(registro.getTitular());
+            if (registroTitular != null) producto.setTitular(registroTitular.getCodigo());
+            
+            ObjFabricantes fabricante = new ObjFabricantes();
+            Fabricantes registroFabricante = fabricante.buscarFabricante(registro.getFabricante());
+            if (registroFabricante != null) producto.setFabricante(registroFabricante.getCodigo());
+            
+            producto.setRegMagrama(registro.getRegMagrama());
+            producto.setFechaActualizacion(new Date());
+
+            em.merge(producto);
+            em.flush();
+            em.getTransaction().commit();
+
+        } catch (Exception e) {
+            System.out.println("ERROR al procesar producto " + numeroRegistro.toString() + "\n" + e.getMessage());
+        } finally {
+            em.close();
+        }
+
+    }
+}

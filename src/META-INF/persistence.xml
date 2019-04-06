@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+  <persistence-unit name="webCultivosPU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>com.acisa.cultivos.modelos.Cultivos</class>
+    <class>com.acisa.cultivos.modelos.CultivosPlagas</class>
+    <class>com.acisa.cultivos.modelos.CultivosPlagasPK</class>
+    <class>com.acisa.cultivos.modelos.CultivosDepredadores</class>
+    <class>com.acisa.cultivos.modelos.CultivosDepredadoresPK</class>
+    <class>com.acisa.cultivos.modelos.Fabricantes</class>
+    <class>com.acisa.cultivos.modelos.Fases</class>
+    <class>com.acisa.cultivos.modelos.Plagas</class>
+    <class>com.acisa.cultivos.modelos.Productos</class>
+    <class>com.acisa.cultivos.modelos.Titulares</class>
+    <class>com.acisa.cultivos.modelos.UsosAutorizados</class>
+    <class>com.acisa.cultivos.modelos.Clientes</class>
+    <class>com.acisa.cultivos.modelos.Fincas</class>
+    <class>com.acisa.cultivos.modelos.Sectores</class>
+    <class>com.acisa.cultivos.modelos.Plantaciones</class>
+    <class>com.acisa.cultivos.modelos.Visitas</class>
+    <class>com.acisa.cultivos.modelos.Muestreos</class>
+    <class>com.acisa.cultivos.modelos.Variedades</class>
+    <class>com.acisa.cultivos.modelos.Controlesplagas</class>
+    <class>com.acisa.cultivos.modelos.ControlesplagasPK</class>
+    <class>com.acisa.cultivos.modelos.Controlesdepredadores</class>
+    <class>com.acisa.cultivos.modelos.ControlesdepredadoresPK</class>
+    <class>com.acisa.cultivos.modelos.Tratamientos</class>
+    <class>com.acisa.cultivos.modelos.Tratamientosproductos</class>
+    <class>com.acisa.cultivos.modelos.Operaciones</class>
+    <class>com.acisa.cultivos.modelos.Operacionesproductos</class>
+    <class>com.acisa.cultivos.modelos.Equiposfumigacion</class>
+    <class>com.acisa.cultivos.modelos.Climatologias</class>
+    <class>com.acisa.cultivos.modelos.Operarios</class>
+    <class>com.acisa.cultivos.modelos.RelacionCultivos</class>
+    <class>com.acisa.cultivos.modelos.RelacionCultivosPK</class>
+    <class>com.acisa.cultivos.modelos.AbonosFertilizantes</class>
+    <class>com.acisa.cultivos.modelos.InstalacionesProduccion</class>
+    <class>com.acisa.cultivos.modelos.ProductosOcb</class>
+    <class>com.acisa.cultivos.modelos.ResponsablesComercializacion</class>
+    <class>com.acisa.cultivos.modelos.ResponsablesComunicacion</class>
+    <class>com.acisa.cultivos.modelos.TiposAbonosFertilizantes</class>
+    <class>com.acisa.cultivos.modelos.Depredadores</class>
+    <class>com.acisa.cultivos.modelos.VisitasAbonosFertilizante</class>
+    <class>com.acisa.cultivos.modelos.VisitasProductosOcb</class>
+    <class>com.acisa.cultivos.modelos.DatosAbonado</class>
+    <class>com.acisa.cultivos.modelos.RegistroDatosAbonado</class>
+    <class>com.acisa.cultivos.modelos.PlantillaDatosAbonado</class>
+    <class>com.acisa.cultivos.modelos.PlantillaRegistroDatosAbonado</class>
+    <class>com.acisa.cultivos.modelos.PlantillaAbonosFertilizantes</class>
+    <class>com.acisa.cultivos.modelos.FabricantesOCB</class>
+    <class>com.acisa.cultivos.modelos.ClientesAsesores</class>
+    <class>com.acisa.cultivos.modelos.ClientesEquipos</class>
+    <class>com.acisa.cultivos.modelos.ClientesPersonas</class>
+    <class>com.acisa.cultivos.modelos.ProximasVisitas</class>
+    <class>com.acisa.cultivos.modelos.PlantacionesFincas</class>
+    <class>com.acisa.cultivos.modelos.PlantacionesFincasPK</class>
+    <class>com.acisa.cultivos.modelos.PlantacionesSectores</class>
+    <class>com.acisa.cultivos.modelos.PlantacionesSectoresPK</class>
+    <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <properties>
+      <property name="eclipselink.canonicalmodel.subpackage" value="dev"/>
+    </properties>
+  </persistence-unit>
+</persistence>

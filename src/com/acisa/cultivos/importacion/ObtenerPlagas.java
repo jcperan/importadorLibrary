@@ -1,0 +1,81 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.acisa.cultivos.importacion;
+
+import com.acisa.cultivos.modelos.Plagas;
+import com.acisa.cultivos.objetos.ObjCultivos;
+import com.acisa.cultivos.objetos.ObjPlagas;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Date;
+import java.util.List;
+
+/**
+ *
+ * @author jcperan
+ */
+public class ObtenerPlagas {
+
+    public ObtenerPlagas() {
+
+    }
+
+    public void procesarPlagas(List<String> listaPlagas) {
+
+        System.out.println("-------------------------------------------------------------");
+        System.out.println(new Date() + " - Integracion Datos de Plagas");
+        System.out.println("-------------------------------------------------------------");
+        
+        Integer cuenta = 0;
+        Integer proces = 0;
+
+        ObjCultivos objCultivos = new ObjCultivos();
+        ObjPlagas objPlagas = new ObjPlagas();
+        listaPlagas.clear();
+        
+        try {
+
+            PermitirHttps permitir = new PermitirHttps();
+            permitir.fixHttps();
+            
+            URL url = new URL("https://www.mapa.gob.es/es/agricultura/temas/sanidad-vegetal/productos-fitosanitarios/registro/productos/conplag.asp");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "iso-8859-15"));
+            
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                if (inputLine.toUpperCase().contains("<OPTION")) {
+                    Integer desde = inputLine.indexOf(">") + 1;
+                    Integer hasta = inputLine.substring(desde).indexOf("<");
+                    if (hasta>0) {
+                        cuenta++;
+                        String buscar = inputLine.substring(desde, desde + hasta).trim();
+                        Plagas registroPlaga = objPlagas.buscarPlaga(buscar);
+                        if (registroPlaga == null) {
+                            registroPlaga = new Plagas();
+                            registroPlaga.setNombre(buscar);
+                            objCultivos.GrabarPlaga(registroPlaga);
+                            proces++;
+                        }
+                        listaPlagas.add(buscar);
+                    }
+                }
+            }
+            in.close();                        
+        } catch (Exception e) {
+            System.out.println(new Date() + " - " + e.getMessage());
+            System.out.println("NO SE HAN PODIDO OBTENER LAS PLAGAS");
+        }
+
+        System.out.println(new Date() + " - Procesados " + cuenta + " registros. Integrados " + proces);
+        System.out.println(new Date() + " - Fin del Proceso");
+        
+    }
+
+}

@@ -1,0 +1,184 @@
+package com.acisa.cultivos.importacion;
+
+import java.util.Date;
+import java.util.StringTokenizer;
+
+import com.acisa.cultivos.modelos.Productos;
+import com.acisa.cultivos.objetos.Persistencia;
+import com.acisa.cultivos.utilidades.PdfToText;
+import com.acisa.cultivos.utilidades.Rutinas;
+
+public class ObjImportacion extends Persistencia {
+
+    public ObjImportacion() {
+
+    }
+
+    private Integer contador = 0;
+    private Integer importados = 0;
+    private Integer minutos = 0;
+
+    public Integer getContador() {
+        return contador;
+    }
+
+    public void setContador(Integer contador) {
+        this.contador = contador;
+    }
+
+    public Integer getImportados() {
+        return importados;
+    }
+
+    public void setImportados(Integer importados) {
+        this.importados = importados;
+    }
+
+    public Integer getMinutos() {
+        return minutos;
+    }
+
+    public void setMinutos(Integer minutos) {
+        this.minutos = minutos;
+    }
+
+    private Integer segundos = 0;
+
+    public Integer getSegundos() {
+        return segundos;
+    }
+
+    public void setSegundos(Integer segundos) {
+        this.segundos = segundos;
+    }
+
+    Productos producto = new Productos();
+
+    public void LeerProductos() {
+
+        ObjImportacionRegistros importacionRegistros = new ObjImportacionRegistros();
+        ObjImportacionFolios importacionFolios = new ObjImportacionFolios();
+
+        Integer inicio = (new Date().getHours() * 3600) + (new Date().getMinutes() * 60) + new Date().getSeconds();
+        contador = 0;
+
+        em = entityManager();
+        try {
+
+            System.out.println("---------------------------------------------------------------");
+            System.out.println(new Date().toString() + " - Inicio del Proceso ESPECIALES");
+            System.out.println("---------------------------------------------------------------");
+
+            // for (Integer i = 1; i < 1; i++) {
+            for (Integer i = 1; i < 999; i++) {
+                
+                PdfToText pdf = new PdfToText();
+                String salida = pdf.ConvertPdfToText("ES-" + String.format("%1$05d", i));
+                StringTokenizer tokens = new StringTokenizer(salida, "\n");
+
+                Integer elapse = ((new Date().getHours() * 3600) + (new Date().getMinutes() * 60)
+                        + new Date().getSeconds()) - inicio;
+                minutos = elapse / 60;
+                segundos = elapse - (minutos * 60);
+
+                if (tokens.hasMoreElements()) {
+                    contador++;
+                    System.out.println(new Date().toString() + " - " + Rutinas.FORMATO_NUMERO(contador, "00000") + " "
+                            + Rutinas.FORMATO_NUMERO(minutos, "000") + ":" + Rutinas.FORMATO_NUMERO(segundos, "00")
+                            + " - NUMERO REGISTRO  = " + new Integer(i).toString());
+
+                    String texto = "";
+                    if (tokens.hasMoreTokens()) {
+                        texto = tokens.nextToken();
+                    }
+                    if (tokens.hasMoreTokens()) {
+                        texto = tokens.nextToken();
+                    }
+                    if (tokens.hasMoreTokens()) {
+                        texto = tokens.nextToken();
+                    }
+
+                    texto = texto.toUpperCase();
+                    if (texto.contains("SECRETARIA GENERAL DE")) {
+                        importacionFolios.ProcesaProducto(i, tokens.toString());
+                    } else if (texto.contains("REGISTRO")) {
+                        importacionRegistros.ProcesaProducto(i, tokens.toString());
+                    } else {
+                        if (tokens.hasMoreElements()) {
+                            System.out.println("Registro ignorado " + Rutinas.FORMATO_NUMERO(i, "00000"));
+                            while (tokens.hasMoreElements()) {
+                                texto = tokens.nextToken();
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            System.out.println("---------------------------------------------------------------");
+            System.out.println(new Date().toString() + " - Inicio del Proceso ANTERIORES");
+            System.out.println("---------------------------------------------------------------");
+
+            for (Integer i = 11000; i < 99999; i++) {
+                // for (Integer i = 22398; i < 99999; i++) {
+
+                /*
+				 * ************************************************************* Obtiene los
+				 * datos del pdf del ministerio
+				 *************************************************************/
+                PdfToText pdf = new PdfToText();
+                String salida = pdf.ConvertPdfToText(new Integer(i).toString());
+                StringTokenizer tokens = new StringTokenizer(salida, "\n");
+
+                Integer elapse = ((new Date().getHours() * 3600) + (new Date().getMinutes() * 60)
+                        + new Date().getSeconds()) - inicio;
+                minutos = elapse / 60;
+                segundos = elapse - (minutos * 60);
+
+                if (tokens.hasMoreElements()) {
+                    contador++;
+                    System.out.println(new Date().toString() + " - " + Rutinas.FORMATO_NUMERO(contador, "00000") + " "
+                            + Rutinas.FORMATO_NUMERO(minutos, "000") + ":" + Rutinas.FORMATO_NUMERO(segundos, "00")
+                            + " - NUMERO REGISTRO  = " + new Integer(i).toString());
+
+                    String texto = "";
+                    if (tokens.hasMoreTokens()) {
+                        texto = tokens.nextToken();
+                    }
+                    if (tokens.hasMoreTokens()) {
+                        texto = tokens.nextToken();
+                    }
+                    if (tokens.hasMoreTokens()) {
+                        texto = tokens.nextToken();
+                    }
+
+                    texto = texto.toUpperCase();
+                    if (texto.indexOf("REGISTRO") >= 0) {
+                        importacionRegistros.ProcesaProducto(i, tokens.toString());
+                    } else if (texto.indexOf("SECRETARIA") >= 0) {
+                        importacionFolios.ProcesaProducto(i, tokens.toString());
+                    } else {
+                        if (tokens.hasMoreElements()) {
+                            System.out.println("Registro ignorado " + Rutinas.FORMATO_NUMERO(i, "00000"));
+                            while (tokens.hasMoreElements()) {
+                                texto = tokens.nextToken();
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            System.out.println("---------------------------------------------------------------");
+            System.out.println(new Date().toString() + " - Fin del Proceso");
+            System.out.println("---------------------------------------------------------------");
+
+        } catch (Exception e) {
+            System.out.println("ERROR al obtener lista de Productos.\n" + e.getMessage());
+            System.out.println(Rutinas.FORMATO_NUMERO(contador, "00000"));
+        } finally {
+            em.close();
+        }
+
+    }
+}
