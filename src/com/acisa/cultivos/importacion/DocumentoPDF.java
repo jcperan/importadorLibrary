@@ -5,6 +5,8 @@
  */
 package com.acisa.cultivos.importacion;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import javax.net.ssl.HttpsURLConnection;
 import java.net.URL;
@@ -96,9 +98,9 @@ public class DocumentoPDF {
 
             URL url = new URL("https://www.mapa.gob.es/agricultura/pags/fitos/registro/productos/pdf/" + ArchivoPDF + ".pdf");
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            InputStream is = connection.getInputStream();
-            // InputStream is = url.openStream();
-
+            // InputStream is = connection.getInputStream();
+            InputStream is = url.openStream();
+            
             PDDocument pdd = PDDocument.load(is);
             PDFTextStripper stripper = new PDFTextStripper();
 

@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
+import java.util.Iterator;
 
 /**
  *
@@ -35,6 +36,13 @@ public class ObtenerCultivos {
         
         ObjCultivos objCultivos = new ObjCultivos();
         listaCultivos.clear();
+        
+        List<Cultivos> lista = objCultivos.getConsultaCultivos();
+        Iterator ic = lista.iterator();
+        while (ic.hasNext()) {
+            Cultivos cultivo = (Cultivos) ic.next();
+            listaCultivos.add(cultivo.getNombre());
+        }
 
         try {
             
