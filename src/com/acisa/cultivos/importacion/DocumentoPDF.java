@@ -117,7 +117,7 @@ public class DocumentoPDF {
             stripper.setParagraphStart(PARRAFO_START);
             stripper.setParagraphEnd("\t");
             stripper.setLineSeparator("\n");
-            stripper.setWordSeparator("_");
+            stripper.setWordSeparator("");
             folioPDF = stripper.getText(pdd);
 
             // genera formato para lectura datos folio
@@ -144,7 +144,7 @@ public class DocumentoPDF {
             stripper.setParagraphStart(PARRAFO_START);
             stripper.setParagraphEnd(PARRAFO_END);
             stripper.setLineSeparator(SEPARADOR_LINEA);
-            stripper.setWordSeparator("_");
+            stripper.setWordSeparator("");
             textoPDF = stripper.getText(pdd);
             
             // PDFTextStripperByArea sts = new PDFTextStripperByArea();
@@ -169,7 +169,7 @@ public class DocumentoPDF {
             pdfTextStripper.setParagraphStart("***");
             pdfTextStripper.setParagraphEnd("***");
             pdfTextStripper.setLineSeparator("\n");
-            pdfTextStripper.setWordSeparator("_");
+            pdfTextStripper.setWordSeparator("");
             // tablePDF = pdfTextStripper.getText(pdd);            
 
             pdd.close();

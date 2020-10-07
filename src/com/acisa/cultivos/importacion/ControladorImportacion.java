@@ -110,9 +110,9 @@ public class ControladorImportacion extends Persistencia {
         System.out.println("---------------------------------------------------------------");
         System.out.println(new Date().toString() + " * Inicio del Proceso ESPECIALES");
         System.out.println("---------------------------------------------------------------");
-        for (int i = 0; i < 999; i++) {
+        for (int i = 0; i < 1999; i++) {
             // for (int i = 0; i < 1; i++) {
-            contador++;
+            contador++; System.gc();
             DocumentoPDF documentoPDF = new DocumentoPDF();
             if (documentoPDF.obtenerPDF("ES-" + String.format("%1$05d", i))) {
                 importados++;
@@ -135,7 +135,7 @@ public class ControladorImportacion extends Persistencia {
         System.out.println(new Date().toString() + " * Inicio del Proceso NORMALES");
         System.out.println("---------------------------------------------------------------");
         for (int i = 11000; i < 40000; i++) {
-            contador++;
+            contador++; System.gc();
             DocumentoPDF documentoPDF = new DocumentoPDF();
             if (documentoPDF.obtenerPDF(String.format("%1$05d", i))) {
                 importados++;

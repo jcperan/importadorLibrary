@@ -131,6 +131,7 @@ public class RegistroFitosanitario {
     }
     
     public String getOrdenacion() {
+        if (ordenacion.length()>2) ordenacion = ordenacion.substring(0,2);
         return ordenacion;
     }
 

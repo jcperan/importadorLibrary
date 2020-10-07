@@ -59,10 +59,18 @@ public class ProcesarFolio {
         registro.setPresentacion(ObtenerSiguienteDato("Presentac", documento));
         registro.setOrdenacion(ObtenerOrdenacion(registro.getComposicion()));
         
-        registro.setFechaInscripcion(FormatoFecha(ObtenerDato("Fecha de Inscripci", documento)));
-        registro.setFechaCaducidad(FormatoFecha(ObtenerDato("Fecha de Caducidad", documento)));
+        String presentacion = ObtenerSiguienteDato("Tipo de Envase", documento);
+        if (presentacion=="") presentacion=ObtenerSiguienteDato("Presentaci", documento);
+        if (presentacion=="") presentacion=ObtenerSiguienteDato("Capacidad", documento);
+        registro.setPresentacion(presentacion);
+        registro.setOrdenacion(ObtenerOrdenacion(registro.getComposicion()));
+
+        registro.setFechaInscripcion(FormatoFecha(ObtenerDato("cha de Inscripci", documento)));
+        registro.setFechaCaducidad(FormatoFecha(ObtenerDato("cha de Caducidad", documento)));
+        if (registro.getFechaCaducidad() == null) registro.setFechaCaducidad(FormatoFecha(ObtenerDato("cha limite de Ve", documento)));
         
-        registro.setListaUsos(ObtenerUsos(documentoPDF.getNuevoPDF(), documentoPDF.getTablePDF()));
+        // registro.setListaUsos(ObtenerUsos(documentoPDF.getNuevoPDF(), documentoPDF.getTablePDF()));
+        registro.setListaUsos(ObtenerUsos(documento));
         
         int nada;
         nada = 0;
@@ -81,13 +89,18 @@ public class ProcesarFolio {
         
         while (tokens.hasMoreTokens()) {
 
-            String primero = tokens.nextToken("\n");
-            if (primero.toUpperCase().contains(TextoBuscar.toUpperCase())) {
-                String dato = primero.split(":")[1].substring(1);
-                resultadoObtenerDato = dato.trim();
-                return resultadoObtenerDato;
+            String primero = tokens.nextToken("\n").replace("_", "");
+            if (primero.toUpperCase().trim().contains(TextoBuscar.toUpperCase())) {
+                if (primero.contains(":")) {
+                    String dato = primero.split(":")[1].substring(1);
+                    resultadoObtenerDato = dato.trim();
+                    return resultadoObtenerDato;
+                } else {
+                    resultadoObtenerDato = primero.substring(1);
+                    return resultadoObtenerDato;
+                }
             }
-            
+
         }
 
         return resultadoObtenerDato;
@@ -105,9 +118,20 @@ public class ProcesarFolio {
             if (primero.toUpperCase().contains(TextoBuscar.toUpperCase())) {
                 String dato = tokens.nextToken("\n");
                 resultadoObtenerSiguienteDato = dato.trim();
+                if (resultadoObtenerSiguienteDato.contains("_")) {
+                    if (TextoBuscar=="Fabricante") {
+                        if (resultadoObtenerSiguienteDato.split("_").length > 1) {
+                            resultadoObtenerSiguienteDato = resultadoObtenerSiguienteDato.split("_")[1];
+                        } else {
+                            resultadoObtenerSiguienteDato = resultadoObtenerSiguienteDato.split("_")[0];                            
+                        }
+                    } else {
+                        resultadoObtenerSiguienteDato = resultadoObtenerSiguienteDato.split("_")[0];
+                    }
+                }
                 return resultadoObtenerSiguienteDato;
             }
-            
+
         }
 
         return resultadoObtenerSiguienteDato;
@@ -144,11 +168,12 @@ public class ProcesarFolio {
     private Date FormatoFecha(String dato) {
         
         Date resultadoFormatoFecha = null;
+        String entrada = dato.replace(" ","");
 
-        if (!"".equals(dato)) {
-            int dd = Integer.parseInt(dato.substring(0, 2));
-            int mm = Integer.parseInt(dato.substring(3, 5));
-            int aa = Integer.parseInt(dato.substring(6, 10));
+        if (!"".equals(entrada)) {
+            int dd = Integer.parseInt(entrada.substring(0, 2));
+            int mm = Integer.parseInt(entrada.substring(3, 5));
+            int aa = Integer.parseInt(entrada.substring(6, 10));
             Calendar cal = Calendar.getInstance();
             cal.set(aa, mm - 1, dd);
             resultadoFormatoFecha = cal.getTime();
@@ -162,7 +187,7 @@ public class ProcesarFolio {
     private RegistroUsosAutorizados actual;
     int index = 0;
     
-    private List<RegistroUsosAutorizados> ObtenerUsos(String documento, String tabla) {
+    private List<RegistroUsosAutorizados> ObtenerUsos(String documento) {
         
         boolean swUsos = false;
         String documentoUsos = "";
@@ -174,7 +199,7 @@ public class ProcesarFolio {
 
             String primero = tokens.nextToken("\n");
             if (primero.contains("Plazos de Seguridad")) break;
-            if (primero.contains("Usos y dosis autorizados:")) swUsos = true;
+            if (primero.contains("Usos y dosis")) swUsos = true;
             if (swUsos) documentoUsos = documentoUsos + "\n" + primero;
 
         }
@@ -352,7 +377,7 @@ public class ProcesarFolio {
         }
         
         AgregarCultivo(listaUsos, "");
-        this.ObtenerUsosTabla(listaUsos, tabla);
+        // this.ObtenerUsosTabla(listaUsos, documento);
         this.PlazoSeguridad(listaUsos, documento);
         return listaUsos;
         

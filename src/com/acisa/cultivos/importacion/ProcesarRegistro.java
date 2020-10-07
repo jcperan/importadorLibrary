@@ -35,21 +35,38 @@ public class ProcesarRegistro {
     Obtener datos del PDF obtenido
      */
     public ProcesarRegistro(Integer numeroRegistro, String documento) {
+        
+        int MAX_CHAR = 50;
 
         registro.setNumeroRegistro(numeroRegistro);
         registro.setNombreComercial(ObtenerDato("Nombre Comerci", documento));
 
-        registro.setTitular(ObtenerSiguienteDato("Titular:", documento));
-        registro.setFabricante(ObtenerSiguienteDato("Fabricante:", documento));
+        String titular = ObtenerSiguienteDato("Titular", documento).trim();
+        String fabrica = ObtenerSiguienteDato("Fabricante", documento).trim();
+        registro.setTitular(titular.substring(0, (titular.length() < MAX_CHAR)?titular.length():MAX_CHAR));
+        registro.setFabricante(fabrica.substring(0, (fabrica.length() < MAX_CHAR)?fabrica.length():MAX_CHAR));
 
         registro.setRegMagrama(ObtenerDato("Registro:", documento));
         registro.setComposicion(ObtenerDato("Composici", documento));
         registro.setTipoFuncion(ObtenerDato("Tipo de Func", documento));
-        registro.setPresentacion(ObtenerSiguienteDato("Tipo de Envase", documento));
+        
+        String presentacion = ObtenerSiguienteDato("Tipo de Envase", documento);
+        if (presentacion=="") presentacion=ObtenerSiguienteDato("Presentaci", documento);
+        if (presentacion=="") presentacion=ObtenerSiguienteDato("Capacidad", documento);
+        registro.setPresentacion(presentacion);
         registro.setOrdenacion(ObtenerOrdenacion(registro.getComposicion()));
 
-        registro.setFechaInscripcion(FormatoFecha(ObtenerDato("Fecha de Inscripci", documento)));
-        registro.setFechaCaducidad(FormatoFecha(ObtenerDato("Fecha de Caducidad", documento)));
+        registro.setFechaInscripcion(FormatoFecha(ObtenerDato("cha de Inscripci", documento)));
+        registro.setFechaCaducidad(FormatoFecha(ObtenerDato("cha de Caducidad", documento)));
+        if (registro.getFechaCaducidad() == null) registro.setFechaCaducidad(FormatoFecha(ObtenerDato("cha limite de Ve", documento)));
+        
+        if (registro.getFechaInscripcion() == null) {
+            registro.setFechaInscripcion(FormatoFecha(""));
+        }
+
+        if (registro.getFechaCaducidad() == null) {
+            registro.setFechaCaducidad(FormatoFecha(""));
+        }
 
         registro.setListaUsos(ObtenerUsos(documento));
         this.ProcesarObservaciones(documento);
@@ -72,11 +89,16 @@ public class ProcesarRegistro {
 
         while (tokens.hasMoreTokens()) {
 
-            String primero = tokens.nextToken("\n");
-            if (primero.toUpperCase().contains(TextoBuscar.toUpperCase())) {
-                String dato = primero.split(":")[1].substring(1);
-                resultadoObtenerDato = dato.trim();
-                return resultadoObtenerDato;
+            String primero = tokens.nextToken("\n").replace("_", "");
+            if (primero.toUpperCase().trim().contains(TextoBuscar.toUpperCase())) {
+                if (primero.contains(":")) {
+                    String dato = primero.split(":")[1].substring(1);
+                    resultadoObtenerDato = dato.trim();
+                    return resultadoObtenerDato;
+                } else {
+                    resultadoObtenerDato = primero.substring(1);
+                    return resultadoObtenerDato;
+                }
             }
 
         }
@@ -96,6 +118,17 @@ public class ProcesarRegistro {
             if (primero.toUpperCase().contains(TextoBuscar.toUpperCase())) {
                 String dato = tokens.nextToken("\n");
                 resultadoObtenerSiguienteDato = dato.trim();
+                if (resultadoObtenerSiguienteDato.contains("_")) {
+                    if (TextoBuscar=="Fabricante") {
+                        if (resultadoObtenerSiguienteDato.split("_").length > 1) {
+                            resultadoObtenerSiguienteDato = resultadoObtenerSiguienteDato.split("_")[1];
+                        } else {
+                            resultadoObtenerSiguienteDato = resultadoObtenerSiguienteDato.split("_")[0];                            
+                        }
+                    } else {
+                        resultadoObtenerSiguienteDato = resultadoObtenerSiguienteDato.split("_")[0];
+                    }
+                }
                 return resultadoObtenerSiguienteDato;
             }
 
@@ -137,11 +170,12 @@ public class ProcesarRegistro {
     private Date FormatoFecha(String dato) {
 
         Date resultadoFormatoFecha = null;
+        String entrada = dato.replace(" ","");
 
-        if (!"".equals(dato)) {
-            int dd = Integer.parseInt(dato.substring(0, 2));
-            int mm = Integer.parseInt(dato.substring(3, 5));
-            int aa = Integer.parseInt(dato.substring(6, 10));
+        if (!"".equals(entrada)) {
+            int dd = Integer.parseInt(entrada.substring(0, 2));
+            int mm = Integer.parseInt(entrada.substring(3, 5));
+            int aa = Integer.parseInt(entrada.substring(6, 10));
             Calendar cal = Calendar.getInstance();
             cal.set(aa, mm - 1, dd);
             resultadoFormatoFecha = cal.getTime();
@@ -172,6 +206,9 @@ public class ProcesarRegistro {
             if (primero.contains("Usos autorizados:")) {
                 swUsos = true;
             }
+            if (primero.contains("Usos y dosis")) {
+                swUsos = true;
+            }
             if (swUsos) {
                 documentoUsos = documentoUsos + "\n" + primero;
             }
@@ -184,20 +221,22 @@ public class ProcesarRegistro {
 
         String datos[];
 
-        tokens = new StringTokenizer(documentoUsos);
+        tokens = new StringTokenizer(documentoUsos, "\n", true);
         while (tokens.hasMoreTokens()) {
 
             String primero = tokens.nextToken("\n");
             datos = primero.split("_");
 
             if (datos[0].substring(0, 1).equals("(")) {
-                int pos = primero.indexOf(' ');
-                if (datos.length>0) actual.parentesis = datos[0].substring(0, pos);
-                if (datos.length>0) actual.cultivo = datos[0].substring(pos + 1);
-                if (datos.length>1) actual.plaga = datos[1];
-                if (datos.length>2) actual.dosificacion = datos[2];
-                if (datos.length>3) actual.plazo = datos[3];
-                actual.observaciones = "";
+                int pos = datos[0].indexOf(' ');
+                if (pos>0) {
+                    if (datos.length>0) actual.parentesis = datos[0].substring(0, pos);
+                    if (datos.length>0) actual.cultivo = datos[0].substring(pos + 1);
+                    if (datos.length>1) actual.plaga = datos[1];
+                    if (datos.length>2) actual.dosificacion = datos[2];
+                    if (datos.length>3) actual.plazo = datos[3];
+                    actual.observaciones = "";
+                }
 
                 AgregarCultivo("");
             }
