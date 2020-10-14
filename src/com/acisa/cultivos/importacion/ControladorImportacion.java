@@ -110,8 +110,8 @@ public class ControladorImportacion extends Persistencia {
         System.out.println("---------------------------------------------------------------");
         System.out.println(new Date().toString() + " * Inicio del Proceso ESPECIALES");
         System.out.println("---------------------------------------------------------------");
-        for (int i = 0; i < 1999; i++) {
-            // for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 2999; i++) {
+        // for (int i = 0; i < 0; i++) {
             contador++; System.gc();
             DocumentoPDF documentoPDF = new DocumentoPDF();
             if (documentoPDF.obtenerPDF("ES-" + String.format("%1$05d", i))) {
@@ -134,7 +134,8 @@ public class ControladorImportacion extends Persistencia {
         System.out.println("---------------------------------------------------------------");
         System.out.println(new Date().toString() + " * Inicio del Proceso NORMALES");
         System.out.println("---------------------------------------------------------------");
-        for (int i = 11000; i < 40000; i++) {
+        for (int i = 11000; i < 30000; i++) {
+        // for (int i = 25650; i <= 25650; i++) {
             contador++; System.gc();
             DocumentoPDF documentoPDF = new DocumentoPDF();
             if (documentoPDF.obtenerPDF(String.format("%1$05d", i))) {
@@ -272,8 +273,7 @@ public class ControladorImportacion extends Persistencia {
 
             if (registroCultivo != null) {
                 if (registroPlaga != null) {
-                    if (!objCultivos.ObtenerCultivoPlaga(registroCultivo.getCodigo(),
-                            registroPlaga.getCodigo())) {
+                    if (!objCultivos.ObtenerCultivoPlaga(registroCultivo.getCodigo(), registroPlaga.getCodigo())) {
                         objCultivos.GrabarCultivoPlaga(registroCultivo.getCodigo(),
                                 registroPlaga.getCodigo());
                     }
